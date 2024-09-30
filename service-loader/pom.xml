@@ -9,8 +9,8 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>commons-plugin</artifactId>
-    <name>IKM PLUGINS</name>
+    <artifactId>service-loader</artifactId>
+    <name>IKM SERVICE LOADER</name>
 
     <dependencies>
         <dependency>
