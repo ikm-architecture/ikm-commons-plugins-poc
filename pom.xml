@@ -57,5 +57,6 @@
     </build>
     <modules>
         <module>service-loader</module>
+        <module>service-discovery</module>
     </modules>
 </project>
