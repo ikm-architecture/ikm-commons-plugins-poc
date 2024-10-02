@@ -15,13 +15,11 @@
  */
 package dev.ikm.commons.service.loader;
 
-import java.util.ServiceLoader;
-
 /**
  * The PluginServiceLoader interface defines a method for obtaining a ServiceLoader
  * for a specific service class, including all dynamic plugin ModuleLayers.
  */
-public interface IKMServiceLoader {
+public interface ServiceLoader {
 
     /**
      * Returns a ServiceLoader for the given pluggable service class.
@@ -39,7 +37,7 @@ public interface IKMServiceLoader {
      * @param <S>     the type of the service
      * @return a ServiceLoader object for the given service class
      */
-    <S> ServiceLoader<S> loader(Class<S> service);
+    <S> java.util.ServiceLoader<S> loader(Class<S> service);
 
     /**
      * Use the plugin class loader provided by the plugable service loader to
