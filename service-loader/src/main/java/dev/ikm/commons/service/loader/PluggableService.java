@@ -1,8 +1,26 @@
+/*
+ * Copyright © 2015 Integrated Knowledge Management (support@ikm.dev)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package dev.ikm.commons.service.loader;
 
-import java.nio.file.Path;
+import java.util.ServiceLoader;
 
-public interface ServiceManager {
+/**
+ * IKMServiceLoader is a utility class used to load service providers using the {@link ServiceLoader} mechanism.
+ */
+public interface PluggableService {
 
     /**
      * Loads an IKMService object for the given service class.
@@ -12,7 +30,7 @@ public interface ServiceManager {
      * @return an IKMService object for the given service class
      * @throws RuntimeException if there is an error accessing the load method or with the reflection
      */
-    <S> java.util.ServiceLoader<S> loader(Class<S> service);
+     <S> ServiceLoader<S> load(Class<S> service);
 
     /**
      * Sets the service loader for the IKMServiceLoader class.
@@ -20,7 +38,7 @@ public interface ServiceManager {
      * @param ikmServiceLoader the service loader object to be set
      * @throws RuntimeException if the load method cannot be accessed or if there is a problem with the reflection
      */
-    void setIKMServiceLoader(ServiceLoader ikmServiceLoader);
+    void setPluggableServiceLoader(PluginServiceLoader ikmServiceLoader);
 
     /**
      * A simplified method to load when there should only be one and only one instance of a service.
@@ -36,15 +54,6 @@ public interface ServiceManager {
      * @return
      * @throws ClassNotFoundException
      */
-    Class<?> forName(String className) throws ClassNotFoundException;
-
-    /**
-     * Sets the directory where plugins are stored.
-     *
-     * @param pluginsDirectory the path to the directory where plugins are stored
-     */
-    void setPluginsDirectory(Path pluginsDirectory);
-
-
+     Class<?> forName(String className) throws ClassNotFoundException;
 
 }

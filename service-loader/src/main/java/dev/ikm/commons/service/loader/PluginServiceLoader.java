@@ -19,7 +19,7 @@ package dev.ikm.commons.service.loader;
  * The PluginServiceLoader interface defines a method for obtaining a ServiceLoader
  * for a specific service class, including all dynamic plugin ModuleLayers.
  */
-public interface ServiceLoader {
+public interface PluginServiceLoader {
 
     /**
      * Returns a ServiceLoader for the given pluggable service class.

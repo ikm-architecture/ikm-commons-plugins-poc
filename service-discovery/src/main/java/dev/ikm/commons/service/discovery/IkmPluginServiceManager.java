@@ -17,23 +17,22 @@ package dev.ikm.commons.service.discovery;
 
 import dev.ikm.commons.service.discovery.internal.Layers;
 import dev.ikm.commons.service.discovery.internal.PluginWatchDirectory;
-import dev.ikm.commons.service.loader.IKMService;
-import dev.ikm.commons.service.loader.ServiceLoader;
-import dev.ikm.commons.service.loader.ServiceManager;
-import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.MutableSet;
+import dev.ikm.commons.service.loader.PluggableService;
+import dev.ikm.commons.service.loader.PluginServiceLoader;
+import dev.ikm.commons.service.loader.PluginServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * The IkmServiceManager class enables provision of plugin services via jar files.
@@ -43,28 +42,30 @@ import java.util.concurrent.locks.ReentrantLock;
  * This class follows the Singleton design pattern to ensure that only one instance of the IkmServiceManager exists.
  * Use the {@link #getInstance()} method to initialize and/or retrieve the Singleton instance.
  * <p>s
- * Use the {@link ServiceManager#loader(Class)} method to obtain a {@link ServiceLoader} that can be used to load plugin services
+ * Use the {@link PluginServiceManager#loader(Class)} method to obtain a {@link ServiceLoader} that can be used to load plugin services
  * of a specific type.
  */
-public class IKMServiceManager implements ServiceManager {
-    private static final Logger LOG = LoggerFactory.getLogger(IKMServiceManager.class);
+public class IkmPluginServiceManager implements PluginServiceManager {
+    private static final Logger LOG = LoggerFactory.getLogger(IkmPluginServiceManager.class);
 
-    private static final AtomicReference<IKMServiceManager> instance = new AtomicReference<>();
+    private static final AtomicReference<IkmPluginServiceManager> instance = new AtomicReference<>();
     public final String PATH_KEY = "dev.ikm.tinkar.plugin.service.boot.IkmServiceManager.PATH_KEY";
     public final String ARTIFACT_KEY = "dev.ikm.tinkar.plugin.service.boot.IkmServiceManager.ARTIFACT_KEY";
     private final String DefaultIKMServiceLoaderArtifactId = "plugin-service-loader";
-    private final AtomicReference<ServiceLoader> serviceLoader = new AtomicReference<>();
+    private final AtomicReference<PluginServiceLoader> serviceLoader = new AtomicReference<>();
+    private final AtomicReference<PluggableService> service = new AtomicReference<>();
     private Layers layers;
 
     private final ConcurrentHashMap<Class, Object> cachedServices = new ConcurrentHashMap();
-    ReentrantLock lock = new ReentrantLock();
-    private ImmutableSet<ClassLoader> classLoaders;
 
-    private IKMServiceManager() {}
+    private IkmPluginServiceManager() {
+        serviceLoader.set(new IkmPluginServiceLoader());
+        service.set(new IkmPluggableService(serviceLoader.get()));
+    }
 
-    public static synchronized IKMServiceManager getInstance() {
+    public static synchronized IkmPluginServiceManager getInstance() {
         if (instance.get() == null) {
-            instance.set(new IKMServiceManager());
+            instance.set(new IkmPluginServiceManager());
         }
         return instance.get();
     }
@@ -116,7 +117,7 @@ public class IKMServiceManager implements ServiceManager {
         String pluginServiceLoaderPath = System.getProperty(PATH_KEY);
 
         ModuleLayer pluginServiceLoaderLayer = Layers.createModuleLayer(parentLayers, List.of(Path.of(pluginServiceLoaderPath)));
-        java.util.ServiceLoader.load(pluginServiceLoaderLayer, ServiceLoader.class).findFirst().ifPresent(this::setIKMServiceLoader);
+        ServiceLoader.load(pluginServiceLoaderLayer, IkmPluginServiceLoader.class).findFirst().ifPresent(this::setIKMServiceLoader);
     }
 
     /**
@@ -139,29 +140,14 @@ public class IKMServiceManager implements ServiceManager {
     }
 
     @Override
-    public <S> java.util.ServiceLoader<S> loader(Class<S> service) {
-        if (serviceLoader.get() == null) {
-            if (!IKMService.class.getModule().canUse(service)) {
-                IKMService.class.getModule().addUses(service);
-            }
-            return java.util.ServiceLoader.load(service);
-        }
-        try {
-            return serviceLoader.get().loader(service);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void setIKMServiceLoader(ServiceLoader ikmServiceLoader) {
+    public void setIKMServiceLoader(PluginServiceLoader ikmServiceLoader) {
         serviceLoader.set(ikmServiceLoader);
     }
 
     @Override
     public <S> S first(Class<S> service) {
         return (S) cachedServices.computeIfAbsent(service, serviceClass -> {
-            java.util.ServiceLoader<?> loader = this.loader(service);
+            ServiceLoader<?> loader = this.loader(service);
             if (loader.stream().count() > 1) {
                 throw new IllegalStateException("More than one service loaded for: " + service);
             }
@@ -170,35 +156,35 @@ public class IKMServiceManager implements ServiceManager {
     }
 
     @Override
-    public Class<?> forName(String className) throws ClassNotFoundException {
-        if (classLoaders == null) {
-            lock.lock();
-            try {
-                if (classLoaders == null) {
-                    MutableSet<ClassLoader> classLoaderSet = Sets.mutable.empty();
-                    classLoaderSet.add(ServiceLoader.class.getClassLoader());
-                    for (ModuleLayer moduleLayer : this.getClass().getModule().getLayer().parents()) {
-                        for (Module module : moduleLayer.modules()) {
-                            if (module.getClassLoader() != null) {
-                                classLoaderSet.add(module.getClassLoader());
-                            }
-                        }
-                    }
-                    classLoaders = classLoaderSet.toImmutableSet();
-                }
+    public <S> ServiceLoader<S> loader(Class<S> service) {
+        if (serviceLoader.get() == null) {
+            if (!this.getClass().getModule().canUse(service)) {
+                this.getClass().getModule().addUses(service);
+            }
+            return ServiceLoader.load(service);
+        }
+        return serviceLoader.get().loader(service);
+    }
 
-            } finally {
-                lock.unlock();
+    @Override
+    public Class<?> forName(String className) throws ClassNotFoundException {
+        if (serviceLoader.get() == null) {
+            Set<ClassLoader> classLoaders = this.getClass().getModule().getLayer().parents().stream()
+                    .flatMap(moduleLayer -> moduleLayer.modules().stream())
+                    .map(Module::getClassLoader)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            for (ClassLoader classLoader : classLoaders) {
+                try {
+                    return Class.forName(className, true, classLoader);
+                } catch (ClassNotFoundException e) {
+                    // Try again...
+                }
             }
+            throw new ClassNotFoundException(className);
         }
-        for (ClassLoader classLoader : classLoaders) {
-            try {
-                return Class.forName(className, true, classLoader);
-            } catch (ClassNotFoundException e) {
-                // Try again...
-            }
-        }
-        throw new ClassNotFoundException(className);
+        return serviceLoader.get().forName(className);
     }
 
 }

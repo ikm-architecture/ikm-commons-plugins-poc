@@ -1,7 +1,7 @@
-import dev.ikm.commons.service.loader.ServiceLoader;
+import dev.ikm.commons.service.loader.PluginServiceLoader;
 
 module dev.ikm.commons.service.discovery {
-    uses ServiceLoader;
+    uses PluginServiceLoader;
     requires org.slf4j;
     requires org.eclipse.collections.api;
     requires dev.ikm.commons.service.loader;
