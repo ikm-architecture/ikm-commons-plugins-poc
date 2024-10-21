@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.ikm.commons.service.loader;
+package dev.ikm.commons.service.discovery;
 
 /**
  * The PluginServiceLoader interface defines a method for obtaining a ServiceLoader

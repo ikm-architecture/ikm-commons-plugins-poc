@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.ikm.commons.service.loader;
+package dev.ikm.commons.service.discovery;
 
 import java.util.ServiceLoader;
 
@@ -33,14 +33,6 @@ public interface PluggableService {
      <S> ServiceLoader<S> load(Class<S> service);
 
     /**
-     * Sets the service loader for the IKMServiceLoader class.
-     *
-     * @param ikmServiceLoader the service loader object to be set
-     * @throws RuntimeException if the load method cannot be accessed or if there is a problem with the reflection
-     */
-    void setPluggableServiceLoader(PluginServiceLoader ikmServiceLoader);
-
-    /**
      * A simplified method to load when there should only be one and only one instance of a service.
      * @param service
      * @return
@@ -56,4 +48,9 @@ public interface PluggableService {
      */
      Class<?> forName(String className) throws ClassNotFoundException;
 
+    /**
+     * Set a PluginServiceLoader object as the service loader to be used in discovering services
+     * @param pluginServiceLoader
+     */
+    void setPluginServiceLoader(PluginServiceLoader pluginServiceLoader);
 }
