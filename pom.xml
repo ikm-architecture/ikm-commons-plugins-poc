@@ -48,7 +48,6 @@
         <module>plugins-api</module>
         <module>plugins</module>
         <module>identicon-lifehash-plugin</module>
-        <module>demotest</module>
     </modules>
 
     <scm>
