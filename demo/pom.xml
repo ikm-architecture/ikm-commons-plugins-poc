@@ -12,6 +12,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <tinkar.version>1.75.0</tinkar.version>
     </properties>
 
     <dependencies>
@@ -21,15 +22,46 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>dev.ikm</groupId>
+            <artifactId>plugin-service-loader</artifactId>
+            <version>3.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>common</artifactId>
+            <version>${tinkar.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>executor-provider</artifactId>
+            <version>${tinkar.version}</version>
+        </dependency>
+        <dependency>
             <groupId>dev.ikm.plugins</groupId>
             <artifactId>identicon-api</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>dev.ikm.plugins</groupId>
-            <artifactId>identicon-lifehash-plugin</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.16</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.16</version>
+        </dependency>
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.sparrowwallet/toucan &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.sparrowwallet</groupId>-->
+<!--            <artifactId>toucan</artifactId>-->
+<!--            <version>0.9.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>dev.ikm.plugins</groupId>-->
+<!--            <artifactId>identicon-lifehash-plugin</artifactId>-->
+<!--            <version>1.0.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
     </dependencies>
 
 </project>
