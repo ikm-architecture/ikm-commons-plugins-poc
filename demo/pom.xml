@@ -13,27 +13,18 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tinkar.version>1.75.0</tinkar.version>
+        <plugin-service-loader.version>3.0.1-SNAPSHOT</plugin-service-loader.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>dev.ikm.plugins</groupId>
-            <artifactId>plugins-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>dev.ikm</groupId>
-            <artifactId>plugin-service-loader</artifactId>
+            <artifactId>plugin-layer</artifactId>
             <version>3.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>dev.ikm.tinkar</groupId>
             <artifactId>common</artifactId>
-            <version>${tinkar.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.ikm.tinkar</groupId>
-            <artifactId>executor-provider</artifactId>
             <version>${tinkar.version}</version>
         </dependency>
         <dependency>
@@ -51,17 +42,51 @@
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.16</version>
         </dependency>
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.sparrowwallet/toucan &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.sparrowwallet</groupId>-->
-<!--            <artifactId>toucan</artifactId>-->
-<!--            <version>0.9.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>dev.ikm.plugins</groupId>-->
-<!--            <artifactId>identicon-lifehash-plugin</artifactId>-->
-<!--            <version>1.0.0-SNAPSHOT</version>-->
-<!--        </dependency>-->
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>plugin-service-loader</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>dev.ikm</groupId>
+                                    <artifactId>plugin-service-loader</artifactId>
+                                    <version>${plugin-service-loader.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/plugin-service-loader</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-plugins</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>dev.ikm.plugins</groupId>
+                                    <artifactId>identicon-lifehash-plugin</artifactId>
+                                    <version>1.0.0-SNAPSHOT</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/plugins</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
