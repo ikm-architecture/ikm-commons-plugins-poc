@@ -17,7 +17,6 @@
 
     <modules>
         <module>identicon-api</module>
-        <module>reasoner-api</module>
         <module>editing-api</module>
     </modules>
 
